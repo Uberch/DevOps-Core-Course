@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -63,7 +64,8 @@ type HealthInfo struct {
 // Helper functions for information collecting
 func getSystemInfo() System {
 	host, err := os.Hostname()
-	if err != nil { // TODO: report err
+	if err != nil {
+		DebugLogger.Print(err)
 	}
 	return System{
 		Hostname:     host,
@@ -98,10 +100,12 @@ var Endpoints = []Endpoint{{
 
 // Handlers for http requests
 func rootHandler(w http.ResponseWriter, r *http.Request) {
+	DebugLogger.Printf("Request: %s %s\n", r.Method, r.URL.Path)
 	log.Println("Collecting service information")
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
-		// Handle error, or return raw RemoteAddr
+		DebugLogger.Println("Failed to parse address, returning raw one")
+		ip = r.RemoteAddr
 	}
 	info := ServiceInfo{
 		Service: Service{
@@ -129,6 +133,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
+	DebugLogger.Printf("Request: %s %s\n", r.Method, r.URL.Path)
 	log.Println("Collecting service health information")
 
 	uptime := getUptime()
@@ -145,7 +150,12 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Application istelf
-var startTime = time.Now()
+var (
+	startTime   = time.Now()
+	DebugLevel  int
+	DebugBuffer bytes.Buffer
+	DebugLogger = log.New(&DebugBuffer, "Debug: ", log.Lshortfile)
+)
 
 func main() {
 	log.Println("Starting application...")
@@ -154,16 +164,27 @@ func main() {
 		port = "8000"
 	}
 
-	addr := os.Getenv("HOST")
-	if addr == "" {
-		addr = "127.0.0.1"
+	debug := os.Getenv("DEBUG")
+	if debug == "true" {
+		DebugLevel = 1
 	}
 
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/health", healthHandler)
 
-	log.Println("Starting server on ", addr+":"+port)
-	err := http.ListenAndServe(addr+":"+port, nil)
-	log.Println(err)
+	log.Println("Starting server on port " + port)
+	go func() {
+		err := http.ListenAndServe(":"+port, nil)
+		log.Println(err)
+	}()
+	var stop string
+	fmt.Println("Type in the 'stop' to terminate")
+	fmt.Scan(&stop)
+	for stop!="stop"{
+		fmt.Scan(&stop)
+	}
+	if DebugLevel>0{
+		fmt.Print(&DebugBuffer)
+	}
 	log.Println("Terminating server")
 }

@@ -3,7 +3,6 @@ Simple service for collecting system and service information
 
 # Prerequisites
 - python 3.13
-- fastapi
 
 # Installation
 ```bash
@@ -31,5 +30,4 @@ PORT=8000 fastapi run app.py
 | Variable name | Type | Default value | Example
 |---|---|---|---|
 | PORT | Integer | 5000 | 8000 |
-| HOST | IP address | 0.0.0.0 | 127.0.0.1 |
 | DEBUG | Boolean | false | true |

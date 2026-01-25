@@ -15,6 +15,7 @@ I have decided to use fastapi, because I already have experience using it
 ## Images
 ![Main endpoint json](./screenshots/main.png "Main endpoint")
 ![Health endpoint json](./screenshots/health.png "Health endpoint")
+![Sample output](./screenshots/output.png "Server output")
 
 ## Terminal output samples
 Usual run (fastapi output voided)

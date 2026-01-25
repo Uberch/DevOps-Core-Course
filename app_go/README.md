@@ -2,25 +2,28 @@
 Simple service for collecting system and service information
 
 # Prerequisites
-- python 3.13
-- fastapi
+No additional dependencies if installed as executable
+
+If builded from source code, then you need:
+- go
+- gcc
 
 # Installation
+Building from source code
 ```bash
 git clone https://github.com/Uberch/DevOps-Core-Course.git
-cd DevOps-Core-Course
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+cd DevOps-Core-Course/go_app
+go build
 ```
 
 # Running the Application
 ```bash
-fastapi run app.py
+./infoService
 ```
+
 Or with custom config:
 ```bash
-PORT=8000 fastapi run app.py
+PORT=8000 ./infoService
 ```
 
 # API Endpoints
@@ -31,5 +34,4 @@ PORT=8000 fastapi run app.py
 | Variable name | Type | Default value | Example
 |---|---|---|---|
 | PORT | Integer | 5000 | 8000 |
-| HOST | IP address | 0.0.0.0 | 127.0.0.1 |
 | DEBUG | Boolean | false | true |

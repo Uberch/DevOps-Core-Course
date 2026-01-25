@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -97,6 +98,7 @@ var Endpoints = []Endpoint{{
 
 // Handlers for http requests
 func rootHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Collecting service information")
 	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		// Handle error, or return raw RemoteAddr
@@ -120,17 +122,24 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 		Endpoints: Endpoints,
 	}
 
+	log.Println("Sending service information")
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(info)
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Collecting service health information")
+
 	uptime := getUptime()
 	info := HealthInfo{
 		Status:        "healthy",
 		Timestamp:     uptime.CurrentTime,
 		UptimeSeconds: uptime.UptimeSeconds,
 	}
+
+	log.Println("Sending service health information")
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(info)
 }
@@ -139,9 +148,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 var startTime = time.Now()
 
 func main() {
-	http.HandleFunc("/", rootHandler)
-	http.HandleFunc("/health", healthHandler)
-
+	log.Println("Starting application...")
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8000"
@@ -152,5 +159,11 @@ func main() {
 		addr = "127.0.0.1"
 	}
 
-	http.ListenAndServe(addr+":"+port, nil)
+	http.HandleFunc("/", rootHandler)
+	http.HandleFunc("/health", healthHandler)
+
+	log.Println("Starting server on ", addr+":"+port)
+	err := http.ListenAndServe(addr+":"+port, nil)
+	log.Println(err)
+	log.Println("Terminating server")
 }

@@ -29,5 +29,5 @@ PORT=8000 fastapi run app.py
 # Configuration
 | Variable name | Type | Default value | Example
 |---|---|---|---|
-| PORT | Integer | 5000 | 8000 |
+| PORT | Integer | 8000 | 8080 |
 | DEBUG | Boolean | false | true |

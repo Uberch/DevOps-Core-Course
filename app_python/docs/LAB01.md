@@ -6,6 +6,13 @@ I have decided to use fastapi, because I already have experience using it
 
 # Practices Applied
 
+I applied following practices:
+- Clean code organization (clear naming, proper imports, only necessary comments, runned autopep8 on code)
+- Basic error handling is implemented in fastapi itself
+- Logging with `logging` module
+- Dependencies managment via `requirements.txt`
+- Omitting files unrelated to app (venv, pycache, logs, IDE files, etc.)
+
 # API Documentation
 - `GET /`: Returns service and system information
 - `GET /health`: Returns health status of service

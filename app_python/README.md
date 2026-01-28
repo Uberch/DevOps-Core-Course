@@ -40,7 +40,7 @@ docker build -t <image_name>:<tag> .
 
 ## Running container
 ```bash
-docker run -p <port_number>:80 <image_name>:<tag> .
+docker run -rm -p <port_number>:8000 <image_name>:<tag> .
 ```
 
 ## Pulling from Docker Hub

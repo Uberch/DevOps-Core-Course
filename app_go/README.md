@@ -35,3 +35,20 @@ PORT=8000 ./infoService
 |---|---|---|---|
 | PORT | Integer | 8000 | 8080 |
 | DEBUG | Boolean | false | true |
+
+# Docker
+## Buidling image
+```bash
+docker build -t <image_name>:<tag> .
+```
+
+## Running container
+```bash
+docker run -i -rm -p <port_number>:8000 <image_name>:<tag> .
+```
+
+## Pulling from Docker Hub
+```bash
+docker pull ub3rch/infoservice:go-<version>
+docker tag ub3rch/infoservice:go-<version> <image_name>:<tag> 
+```

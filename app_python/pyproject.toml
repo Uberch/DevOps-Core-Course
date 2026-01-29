@@ -1,0 +1,5 @@
+[tool.basedpyright]
+reportUnknownVariableType = "none"
+reportUnknownParameterType = "none"
+reportUnknownMemberType = "none"
+reportMissingTypeStubs = "none"

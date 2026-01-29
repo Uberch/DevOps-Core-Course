@@ -1,0 +1,9 @@
+# Golang
+infoService
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store

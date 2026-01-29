@@ -1,0 +1,19 @@
+# Version control
+.git
+.gitignore
+
+# Secrets
+.env
+*.pem
+secrets/
+
+# Documentation
+*.md
+docs/
+
+# Tests
+tests/
+
+# IDE configurations
+.vscode/
+.idea/

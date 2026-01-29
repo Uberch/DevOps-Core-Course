@@ -7,6 +7,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app_python
     steps:
       - uses: actions/checkout@v4
 
@@ -21,7 +24,7 @@ jobs:
           pip install flake8
 
       - name: Lint
-        run: flake8 app.py
+        run: flake8 infoservice/infoservice.py
 
       - name: Test
         run: pytest tests/

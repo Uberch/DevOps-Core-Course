@@ -17,14 +17,15 @@ jobs:
         with:
           python-version: '3.13'
 
+      - name: Lint
+        run: |
+          pip install flake8
+          flake8 infoservice/infoservice.py
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          pip install flake8
-
-      - name: Lint
-        run: flake8 infoservice/infoservice.py
 
       - name: Test
         run: pytest tests/

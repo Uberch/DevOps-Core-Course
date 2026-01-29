@@ -24,7 +24,7 @@ logging.basicConfig(
     level=DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger=logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 logger.info("Application starting...")
 
 
@@ -101,10 +101,10 @@ def get_service_info():
 
 
 def get_uptime():
-    delta=datetime.now() - start_time
-    seconds=int(delta.total_seconds())
-    hours=seconds // 3600
-    minutes=(seconds % 3600) // 60
+    delta = datetime.now() - start_time
+    seconds = int(delta.total_seconds())
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
     return UptimeInfo(
         uptime_seconds=seconds,
         uptime_human=f"{hours} hours, {minutes} minutes",

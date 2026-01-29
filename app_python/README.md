@@ -15,11 +15,11 @@ pip install -r requirements.txt
 
 # Running the Application
 ```bash
-fastapi run app.py
+fastapi run infoservice/app.py
 ```
 Or with custom config:
 ```bash
-PORT=8000 fastapi run app.py
+PORT=8000 fastapi run infoservice/app.py
 ```
 
 # API Endpoints

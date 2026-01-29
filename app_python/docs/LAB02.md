@@ -206,7 +206,7 @@ stage should be in the end of dockerfile.
 ```
 
 ## Registry
-[Link to Docker registry]{https://hub.docker.com/repository/docker/ub3rch/infoservice/general}
+[Link to Docker registry](https://hub.docker.com/repository/docker/ub3rch/infoservice/general)
 
 
 # Technical analysis

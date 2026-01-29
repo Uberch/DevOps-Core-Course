@@ -1,6 +1,9 @@
 # Overview
 Simple service for collecting system and service information
 
+# CI/CD Status
+[![Python CI](https://github.com/Uberch/DevOps-Core-Course/actions/workflows/python-ci.yml/badge.svg)](https://github.com/Uberch/DevOps-Core-Course/actions/workflows/python-ci.yml)
+
 # Prerequisites
 - python 3.13
 
@@ -11,6 +14,12 @@ cd DevOps-Core-Course
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+```
+
+# Testing the Application
+```bash
+cd app_python
+pytest
 ```
 
 # Running the Application

@@ -14,7 +14,11 @@ from fastapi import FastAPI, Request
 
 
 # Configuration
-DEBUG=logging.DEBUG if os.getenv('DEBUG', 'false')=='true' else logging.INFO
+if os.getenv('DEBUG', 'false') == 'true':
+    level = logging.DEBUG
+else:
+    level = logging.INFO
+DEBUG = level
 
 logging.basicConfig(
     level=DEBUG,
@@ -54,13 +58,13 @@ class RequestInfo(BaseModel):
     path:       str
 
 
-class EndpointInfo(BaseModel): 
+class EndpointInfo(BaseModel):
     path:        str
     method:      str
     description: str
 
 
-class MainEndpoint(BaseModel): 
+class MainEndpoint(BaseModel):
     system:    SystemInfo
     service:   ServiceInfo
     runtime:   UptimeInfo
@@ -68,14 +72,14 @@ class MainEndpoint(BaseModel):
     endpoints: list[EndpointInfo]
 
 
-class HealthEndpoint(BaseModel): 
+class HealthEndpoint(BaseModel):
     status:         str
     timestamp:      str
     uptime_seconds: int
 
 
 # Various information collecting functions
-def get_system_info(): 
+def get_system_info():
     """Collect system information."""
     return SystemInfo(
         hostname=socket.gethostname(),
@@ -85,7 +89,8 @@ def get_system_info():
         python_version=platform.python_version()
     )
 
-def get_service_info(): 
+
+def get_service_info():
     """Collect service information."""
     return ServiceInfo(
         name=app.title,
@@ -94,7 +99,8 @@ def get_service_info():
         framework="fastapi",
     )
 
-def get_uptime(): 
+
+def get_uptime():
     delta=datetime.now() - start_time
     seconds=int(delta.total_seconds())
     hours=seconds // 3600
@@ -106,7 +112,8 @@ def get_uptime():
         timezone=str(timezone.utc),
     )
 
-def get_endpoints(): 
+
+def get_endpoints():
     return [
         EndpointInfo(
             path="/",
@@ -122,10 +129,10 @@ def get_endpoints():
 
 
 # Application start time
-START_TIME=datetime.now(timezone.utc)
-start_time=datetime.now()
+START_TIME = datetime.now(timezone.utc)
+start_time = datetime.now()
 
-app=FastAPI(
+app = FastAPI(
     title="DevOps Info Service",
     description="DevOps course info service",
     summary="",
@@ -153,12 +160,13 @@ def index(request: Request):
         endpoints=get_endpoints(),
     )
 
+
 @app.get("/health")
 def health(request: Request):
     """Health endpoint - information about services status"""
     logger.info("Collecting service health information...")
     logger.debug(f'Request: {request.method} {request.url.path}')
-    uptime_info=get_uptime()
+    uptime_info = get_uptime()
     return HealthEndpoint(
         status="healthy",
         timestamp=uptime_info.current_time,

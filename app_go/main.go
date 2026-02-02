@@ -177,6 +177,7 @@ func main() {
 		err := http.ListenAndServe(":"+port, nil)
 		log.Println(err)
 	}()
+
 	var stop string
 	fmt.Println("Type in the 'stop' to terminate")
 	fmt.Scan(&stop)

@@ -1,0 +1,68 @@
+name: Go CI
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    paths:
+      - 'app_go/**'
+      - '.github/workflows/go-ci.yml'
+      - '!app_go/docs'
+      - '!app_go/README.md'
+      - '!**.gitignore'
+
+
+jobs:
+  test:
+    name: Verify go app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app_go
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up go
+        uses: actions/setup-go@v4
+        with:
+          # go-version: '1.25'
+          # cache: true
+          # cache-dependency-path: 'app_go/go.sum'
+
+      - name: Lint
+        uses: golangci-lint
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Test
+        run: CGO_ENABLED=0 go test
+
+      - name: Coverage
+        run: |
+          go test -coverprofile=coverage.out ./...
+          go tool cover -html=coverage.out
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./app_go
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/infoservice:go-latest
+            ${{ secrets.DOCKER_USERNAME }}/infoservice:go-${{ github.event.pull_request.number }}.1.0
+

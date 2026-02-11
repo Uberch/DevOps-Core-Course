@@ -1,11 +1,12 @@
-# Unit testing
-## Testing Framework Choose
+# Overview
+## Testing Framework
 I have chosen pytest as testing framework,
 since it is simple and powerful and
 adding this dependency will not cause
 critical slowing of CI.
 
-## Test Structure Explanation
+## Test Coverage
+### Test Structure Explanation
 - test_endpoint_main():
 Ensures main endpoint
 is present and checks right,
@@ -17,7 +18,14 @@ Test the main endpoint
 response from simulated
 different ip's and user agents.
 
-## Terminal Output
+### Running Tests Locally
+From `app_python` directory:
+```bash
+source venv/bin/activate
+pytest
+```
+
+### Terminal Output
 ```
 ====================== test session starts ======================
 platform linux -- Python 3.13.11, pytest-9.0.2, pluggy-1.6.0
@@ -30,38 +38,56 @@ tests/test_sample.py ...                                  [100%]
 ================= 3 passed, 0 warning in 0.29s ==================
 ```
 
-# GitHub Actions CI Workflow
-## Trigger Strategy and Reasoning
-Since I create separate branch
-for each lab, I have decided to
-trigger CI with pull request to
-`master` branch. This way I
-initially create pull request
-and each time I push to branch,
-pull request is updated and
-CI is triggered.
+## CI workflow trigger configuration
+### Trigger Strategy and Reasoning
+Workflow triggers on pushes and
+PR's to master branch 
+(assuming changes in application
+or workflow)
 
-## Choise of specific actions
-- action/checkout@v4 - needed to clone repo
-- action/setup-python@v5 - needed to setup python
-- snyk/action/python-3.10@master - scans security
-- docker/login-action@v3 - login to docker registry
-- docker/build-push-action@v5 - builds and pushes docker image
+## Versioning strategy
+Semantic versioning
+because it represents my
+progress with course.
 
-## Docker tagging strategy
-I have decided to use semantic versioning of type
-"python-<lab_number>.x.y"
+# Workflow evidence
 
-## ![Succesful Workflow](https://github.com/Uberch/DevOps-Core-Course/actions/runs/21480050436)
+# Best Practices
+- Job Dependencies: Dont do work,
+which will fail, because previous
+work failed
+- Pull Request Checks: Prevents
+bad code in master branch, productions
+- Fail Fast: Catch errors as early as possible
+- Caching:
+- Snyk not done, since snyk blocks Russian users
 
-## Screenshot
-[Succesful Workflow](./screenshots/workflow.png)
+# Key decisions
+## Versioning Strategy
+I have decided to use
+Semantic versioning of type
+"python-<lab_number>.1.0"
 
-# CI Best Practices & Security
-## Caching implementation and speed improvement metrics
+## Docker tags
+My workflow creates two tags:
+- python-<version>
+- latest
 
-## CI Best Practices Applied
+## Wokflow triggers
+The workflow is triggerred on
+push, this allows fast feedback
+on each delivered change.
 
-## Snyk integration
+Also workflow triggers on pull
+requests to prevent merging of
+bad code to master branch.
 
-## Improved Workflow Performance
+## Test coverage
+What is covered:
+System- and Client- dependend outputs
+(to prevent occasional hard-coding)
+
+What is not covered:
+Getters, setters and
+hardcoded(intentionally)
+outputs

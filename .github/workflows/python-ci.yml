@@ -3,9 +3,17 @@ name: Python CI
 on:
   pull_request:
     branches: [ master ]
+  push:
+    paths:
+      - 'app_python/**'
+      - '.github/workflows/python-ci.yml'
+      - '!app_python/docs'
+      - '!app_python/README.md'
+      - '!**.gitignore'
 
 jobs:
   test:
+    name: Verify python app
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -14,17 +22,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
+        # with:
+        #   python-version: '3.13'
+        #   cache: 'pip'
+        #   cache-dependency-path: 'requirements.txt'
 
-      - name: Run Snyk
-        uses: snyk/actions/python-3.10@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
+      # - name: Run Snyk
+      #   uses: snyk/actions/python-3.10@master
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     args: --severity-threshold=high
 
       - name: Lint
         run: |
@@ -37,6 +45,11 @@ jobs:
 
       - name: Test
         run: pytest tests/
+
+      - name: Test coverage
+        run: |
+          pip install pytest-cov
+          pytest --cov=. --cov-report=xml --cov-report=term
 
   docker:
     needs: test
@@ -56,5 +69,5 @@ jobs:
           context: ./app_python
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/infoservice:latest
+            ${{ secrets.DOCKER_USERNAME }}/infoservice:python-latest
             ${{ secrets.DOCKER_USERNAME }}/infoservice:python-${{ github.event.pull_request.number }}.1.0

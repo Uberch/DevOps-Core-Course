@@ -20,8 +20,7 @@ jobs:
       run:
         working-directory: ./app_go
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up go
         uses: actions/setup-go@v4

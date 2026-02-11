@@ -21,10 +21,11 @@ on:
 ## Benefits analysis
 Path filters allow to save
 CI time (and, therefore money)
-by disabling rerunning 
+by disabling rerunning
 workflows related to unchanged code.
 
 ## Selective Triggering
+![Each commit triggers only workflows related to affected code](./screenshots/select_ci.png)
 
 # Test Coverage
 ## Integration

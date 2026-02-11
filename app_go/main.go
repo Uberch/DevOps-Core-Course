@@ -129,7 +129,10 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Sending service information")
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(info)
+	err = json.NewEncoder(w).Encode(info)
+	if err != nil {
+		log.Println("Failed to encode response", err)
+	}
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +149,10 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Sending service health information")
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(info)
+	err := json.NewEncoder(w).Encode(info)
+	if err != nil {
+		log.Println("Failed to encode response", err)
+	}
 }
 
 // Application istelf
@@ -180,11 +186,17 @@ func main() {
 
 	var stop string
 	fmt.Println("Type in the 'stop' to terminate")
-	fmt.Scan(&stop)
-	for stop!="stop"{
-		fmt.Scan(&stop)
+	_, err := fmt.Scan(&stop)
+	if err != nil {
+		log.Println("Failed to read stdin", err)
 	}
-	if DebugLevel>0{
+	for stop != "stop" {
+		_, err := fmt.Scan(&stop)
+		if err != nil {
+			log.Println("Failed to read stdin", err)
+		}
+	}
+	if DebugLevel > 0 {
 		fmt.Print(&DebugBuffer)
 	}
 	log.Println("Terminating server")

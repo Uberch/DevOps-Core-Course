@@ -31,3 +31,20 @@ PORT=8000 fastapi run app.py
 |---|---|---|---|
 | PORT | Integer | 8000 | 8080 |
 | DEBUG | Boolean | false | true |
+
+# Docker
+## Buidling image
+```bash
+docker build -t <image_name>:<tag> .
+```
+
+## Running container
+```bash
+docker run -rm -p <port_number>:8000 <image_name>:<tag> .
+```
+
+## Pulling from Docker Hub
+```bash
+docker pull ub3rch/infoservice:python-<version>
+docker tag ub3rch/infoservice:python-<version> <image_name>:<tag> 
+```

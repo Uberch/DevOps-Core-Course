@@ -31,18 +31,13 @@ jobs:
 
       - name: Lint
         uses: golangci/golangci-lint-action@v9
-        with:
-          working-directory: ./app_go
 
       - name: Install dependencies
         run: go mod download
 
-      - name: Test
-        run: CGO_ENABLED=0 go test
-
-      - name: Coverage
+      - name: Test with Coverage
         run: |
-          go test -coverprofile=coverage.out ./...
+          CGO_ENABLED=0 go test -coverprofile=coverage.out ./...
           go tool cover -html=coverage.out
 
   docker:

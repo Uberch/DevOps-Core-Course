@@ -51,6 +51,39 @@ because it represents my
 progress with course.
 
 # Workflow evidence
+[Successful workflow](https://github.com/Uberch/DevOps-Core-Course/actions/runs/21901627386)
+Tests passing locally:
+```bash
+====================== test session starts ======================
+platform linux -- Python 3.13.11, pytest-9.0.2, pluggy-1.6.0
+rootdir: /home/uber/code/DevOps/app_python
+configfile: pyproject.toml
+plugins: cov-7.0.0, anyio-4.12.1, mock-3.15.1
+collected 3 items
+
+tests/test_sample.py ...                                  [100%]
+
+======================= warnings summary ========================
+venv/lib/python3.13/site-packages/starlette/formparsers.py:12
+  /home/uber/code/DevOps/app_python/venv/lib/python3.13/site-packages/starlette/formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== tests coverage =========================
+_______ coverage: platform linux, python 3.13.11-final-0 ________
+
+Name                         Stmts   Miss  Cover
+------------------------------------------------
+infoservice/infoservice.py      76      1    99%
+------------------------------------------------
+TOTAL                           76      1    99%
+Coverage XML written to file coverage.xml
+Required test coverage of 70% reached. Total coverage: 98.68%
+================= 3 passed, 1 warning in 0.48s ==================
+(venv)
+```
+
+[Image on Docker Hub](https://hub.docker.com/repository/docker/ub3rch/infoservice/general)
 
 # Best Practices
 - Job Dependencies: Dont do work,

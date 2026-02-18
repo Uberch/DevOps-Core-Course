@@ -1,0 +1,35 @@
+name: Terraform CI
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'terraform/**'
+
+jobs:
+  validate:
+    name: Validate terraform configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Check formatting
+        run: terraform fmt -check
+
+      - name: Initialize terraform
+        run: terraform init
+
+      - name: Validate syntax
+        run: terraform validate
+
+      - name: Setup terraform linter
+        uses: terraform-linters/setup-tflint@v6
+
+      - name: Lint terraform
+        run: tflint
+
+

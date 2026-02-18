@@ -1,2 +1,18 @@
 *.xml
 
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+
+# Pulumi
+pulumi/venv/
+Pulumi.*.yaml
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store

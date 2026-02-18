@@ -1,6 +1,9 @@
 # Overview
 Simple service for collecting system and service information
 
+# CI/CD Status
+[![Python CI](https://github.com/Uberch/DevOps-Core-Course/actions/workflows/python-ci.yml/badge.svg)](https://github.com/Uberch/DevOps-Core-Course/actions/workflows/python-ci.yml)
+
 # Prerequisites
 - python 3.13
 
@@ -13,13 +16,19 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+# Testing the Application
+```bash
+cd app_python
+pytest
+```
+
 # Running the Application
 ```bash
-fastapi run app.py
+fastapi run infoservice/app.py
 ```
 Or with custom config:
 ```bash
-PORT=8000 fastapi run app.py
+PORT=8000 fastapi run infoservice/app.py
 ```
 
 # API Endpoints

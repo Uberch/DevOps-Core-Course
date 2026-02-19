@@ -33,6 +33,9 @@ jobs:
         run: tflint
 
       - name: GitHub Integration
+        with:
+          working_directory:
+            ./terraform
         run: |
           export GITHUB_TOKEN=${{ secrets.TERRAFORM_GITHUB_TOKEN }}
           terraform import github_repository.course_repo DevOps-Core-Course

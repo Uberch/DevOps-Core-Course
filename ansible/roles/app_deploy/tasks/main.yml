@@ -1,0 +1,28 @@
+--- 
+- name: Login
+  docker_login:
+    username: "{{ dockerhub_username }}"
+    password: "{{ dockerhub_password }}"
+  no_log: true  # Prevents credentials in logs
+
+- name: Pull Image
+  docker_image:
+    name: "{{ docker_image }}"
+    tag: "{{ docker_image_tag }}"
+    source: pull
+    state: present
+  notify: run container
+
+- name: Verify Container Running
+  wait_for:
+    host: 0.0.0.0
+    port: 5000
+    connection_timeout: 1
+    delay: 5
+    state: drained
+    sleep: 2
+
+- name: Check Health
+  uri:
+    method: GET
+    url: http://0.0.0.0:5000/health

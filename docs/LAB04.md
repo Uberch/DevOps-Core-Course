@@ -27,7 +27,7 @@ I will use local VM
 ## Terminal output of import
 ![Output](./screenshots/import.png)
 
-## Why import
+## Why import and benefits
 Import brings existing resources into Terraform management:
 1. Write Terraform config describing the resource
 2. Run `terraform import` to link config to real resource

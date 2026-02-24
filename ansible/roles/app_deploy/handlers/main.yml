@@ -1,9 +1,9 @@
 ---
-- name: run container
+- name: stop container
   docker_container:
     name: "{{ app_container_name }}"
     image: "{{ docker_image }}:{{ docker_image_tag }}"
     auto_remove: true
     published_ports: "{{ port_mapping }}"
-    state: started
+    state: absent
     pull: false

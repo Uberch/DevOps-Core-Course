@@ -22,3 +22,15 @@
     name: docker-ce
     state: present
   notify: restart docker
+
+- name: Create Docker Group
+  group:
+    name: docker
+    state: present
+
+- name: Add user to Docker group
+  user:
+    name: user
+    groups: docker
+    append: yes
+    state: present

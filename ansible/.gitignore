@@ -1,2 +1,4 @@
 .vault_pass
-deploy
+*.retry
+inventory/*.pyc
+__pycache__/

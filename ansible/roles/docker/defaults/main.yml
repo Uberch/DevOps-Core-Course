@@ -1,7 +1,2 @@
 ---
-docker_version: "24.05"
-docker_users:
-  - user
-docker_log_driver: "json-file"
-docker_log_max_size: "10m"
 ansible_distribution_release: "24.04"

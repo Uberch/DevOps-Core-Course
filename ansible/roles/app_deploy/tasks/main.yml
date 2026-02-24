@@ -1,4 +1,16 @@
 --- 
+# - name: Map Port for external access
+#   ufw:
+#     default: allow
+#     state: enabled
+#     route: true
+#     direction: routed
+#     proto: tcp
+#     from_port: "{{ external_port }}"
+#     to_ip: "{{ local_addr }}"
+#     to_port: "{{ local_port }}"
+#     log: true
+#
 - name: Login
   docker_login:
     username: "{{ dockerhub_username }}"
@@ -10,19 +22,29 @@
     name: "{{ docker_image }}"
     tag: "{{ docker_image_tag }}"
     source: pull
+    force_source: true
     state: present
-  notify: run container
+  notify: stop container
+
+- name: run container
+  docker_container:
+    name: "{{ app_container_name }}"
+    image: "{{ docker_image }}:{{ docker_image_tag }}"
+    auto_remove: true
+    published_ports: "{{ port_mapping }}"
+    state: started
+    pull: false
 
 - name: Verify Container Running
   wait_for:
-    host: 0.0.0.0
-    port: 5000
-    connection_timeout: 1
+    host: "{{ local_addr }}"
+    port: "{{ local_port }}"
+    connect_timeout: 1
     delay: 5
     state: drained
     sleep: 2
 
 - name: Check Health
   uri:
+    url: "http://{{ local_addr }}:{{ local_port }}/health"
     method: GET
-    url: http://0.0.0.0:5000/health

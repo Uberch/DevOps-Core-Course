@@ -3,6 +3,12 @@ name: Go CI
 on:
   pull_request:
     branches: [ master ]
+    paths:
+      - 'app_go/**'
+      - '.github/workflows/go-ci.yml'
+      - '!app_go/docs/**'
+      - '!app_go/README.md'
+      - '!**.gitignore'
   push:
     paths:
       - 'app_go/**'

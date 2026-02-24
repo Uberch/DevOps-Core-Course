@@ -4,10 +4,3 @@ __pycache__/
 venv/
 *.log
 .coverage
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store

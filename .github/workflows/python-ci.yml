@@ -3,6 +3,12 @@ name: Python CI
 on:
   pull_request:
     branches: [ master ]
+    paths:
+      - 'app_python/**'
+      - '.github/workflows/python-ci.yml'
+      - '!app_python/docs/**'
+      - '!app_python/README.md'
+      - '!**.gitignore'
   push:
     paths:
       - 'app_python/**'

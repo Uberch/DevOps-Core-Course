@@ -1,13 +1,33 @@
 ---
-- name: Update apt cache
-  apt:
-    update_cache: yes
-    cache_valid_time: 3600
+- name: Managing packages
+  block:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
 
-- name: Install common packages
-  apt:
-    name: "{{ common_packages }}"
-    state: present
+    - name: Install common packages
+      apt:
+        name: "{{ common_packages }}"
+        state: present
+
+    - name: Yield success
+      debug:
+        msg: "Packages updated succesfully"
+
+  rescue:
+    - name: Handle failure
+      apt:
+        update_cache: yes
+
+  always:
+    - name: Yield success
+      debug:
+        msg: "Packages block finished"
+
+  tags:
+    - packages
+
 
 - name: Setup timezone
   timezone:

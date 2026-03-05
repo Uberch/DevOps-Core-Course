@@ -4,5 +4,13 @@
   become: yes
 
   roles:
-    - common
-    - docker
+    - role: common
+      become: true
+      tags:
+        - common
+
+    - role: docker
+      become: true
+      tags:
+        - docker
+

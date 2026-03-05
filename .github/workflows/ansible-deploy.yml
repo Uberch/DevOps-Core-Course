@@ -31,7 +31,8 @@ jobs:
       - name: Run ansible-lint
         run: |
           cd ansible
-          ansible-lint playbooks/*.yml
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > /tmp/vault_pass
+          ansible-lint playbooks/*.yml --vault-password-file /tmp/vault_pass 
 
   deploy:
     runs-on: self-hosted

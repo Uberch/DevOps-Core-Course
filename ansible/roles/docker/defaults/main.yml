@@ -1,2 +1,2 @@
 ---
-ansible_distribution_release: "24.04"
+docker_ansible_distribution_release: "24.04"

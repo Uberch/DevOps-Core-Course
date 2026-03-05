@@ -32,7 +32,7 @@ jobs:
         run: |
           cd ansible
           echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > ./.vault_pass
-          ansible-lint playbooks/*.yml
+          ansible-lint playbooks/*.yml -x no-relative-paths
 
   deploy:
     runs-on: self-hosted

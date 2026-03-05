@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  {{ app_name }}:
-    image: {{ docker_image }}:{{ docker_tag }}
-    container_name: {{ app_name }}
+  {{ web_app_name }}:
+    image: {{ web_app_image }}:{{ web_app_tag }}
+    container_name: {{ web_app_name }}
     ports:
-      - "{{ port_mapping }}"
+      - "{{ web_app_port_mapping }}"
     # environment:
       # Add environment variables here
       # Use Vault-encrypted secrets

@@ -1,8 +1,12 @@
 ---
 - name: Docker install
+  tags:
+    - docker_install
+    - packages
+
   block:
     - name: Install prerequisites
-      apt:
+      ansible.builtin.apt:
         name:
           - apt-transport-https
           - ca-certificates
@@ -10,66 +14,62 @@
         state: present
 
     - name: Add Docker GPG key
-      apt_key:
+      ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
     - name: Add Docker repository
-      apt_repository:
-        repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+      ansible.builtin.apt_repository:
+        repo: "deb https://download.docker.com/linux/ubuntu {{ docker_ansible_distribution_release }} stable"
         state: present
 
     - name: Install Docker
-      apt:
+      ansible.builtin.apt:
         name: docker-ce
         state: present
-      notify: restart docker
 
   rescue:
     - name: Handle failure
-      apt:
-        update_cache: yes
+      ansible.builtin.apt:
+        update_cache: true
 
   always:
     - name: Populate service facts
       ansible.builtin.service_facts:
 
     - name: Log service status
-      debug:
+      ansible.builtin.debug:
         var: ansible_facts.services['docker'].state
 
-  tags:
-    - docker_install
-    - packages
 
 - name: Configure Docker
+  tags:
+    - docker_config
+    - users
+
   block:
     - name: Create Docker Group
-      group:
+      ansible.builtin.group:
         name: docker
         state: present
 
     - name: Add user to Docker group
-      user:
+      ansible.builtin.user:
         name: user
         groups: docker
-        append: yes
+        append: true
         state: present
 
     - name: Log failure
-      debug:
+      ansible.builtin.debug:
         msg: "Docker configuration successfull"
 
   rescue:
     - name: Log failure
-      debug:
+      ansible.builtin.debug:
         msg: "Docker configuration failed"
 
   always:
     - name: Log failure
-      debug:
+      ansible.builtin.debug:
         msg: "Docker configuration finished"
-
-  tags:
-    - docker_config
-    - users

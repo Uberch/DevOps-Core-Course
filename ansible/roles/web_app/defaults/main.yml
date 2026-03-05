@@ -1,13 +1,12 @@
 ---
-app_name: infoservice
-docker_image: "{{ dockerhub_username }}/{{ app_name }}"
-docker_tag: python-latest
-app_internal_port: 8000
-app_port: 5000
-local_addr: 127.0.0.1
-external_port: 8000
-port_mapping: "{{ local_addr }}:{{ app_port }}:{{ app_internal_port }}"
-app_container_name: Xantusia
-
-compose_project_dir: "/opt/{{ app_name }}"
+web_app_name: infoservice
+web_app_image: "{{ dockerhub_username }}/{{ web_app_name }}"
+web_app_tag: python-latest
+web_app_internal_port: 8000
+web_app_port: 5000
+web_app_addr: 127.0.0.1
+web_app_external_port: 8000
+web_app_port_mapping: "{{ web_app_addr }}:{{ web_app_port }}:{{ web_app_internal_port }}"
+web_app_container_name: Xantusia
+web_app_dir: "/opt/{{ web_app_name }}"
 web_app_wipe: false

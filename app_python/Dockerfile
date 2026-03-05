@@ -12,4 +12,4 @@ COPY ./infoservice/infoservice.py .
 
 # Run application as non-root user
 USER appuser
-CMD ["fastapi", "run", "app.py"]
+CMD ["fastapi", "run", "infoservice.py"]

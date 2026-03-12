@@ -1,14 +1,34 @@
 ---
-- name: Update apt cache
-  apt:
-    update_cache: yes
-    cache_valid_time: 3600
+- name: Managing packages
+  tags:
+    - packages
 
-- name: Install common packages
-  apt:
-    name: "{{ common_packages }}"
-    state: present
+  block:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install common packages
+      ansible.builtin.apt:
+        name: "{{ common_packages }}"
+        state: present
+
+    - name: Yield success
+      ansible.builtin.debug:
+        msg: "Packages updated succesfully"
+
+  rescue:
+    - name: Handle failure
+      ansible.builtin.apt:
+        update_cache: true
+
+  always:
+    - name: Yield success
+      ansible.builtin.debug:
+        msg: "Packages block finished"
+
 
 - name: Setup timezone
-  timezone:
+  community.general.timezone:
     name: GMT

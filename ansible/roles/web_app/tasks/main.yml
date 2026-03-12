@@ -1,0 +1,55 @@
+---
+- name: Include wipe task
+  ansible.builtin.include_tasks: wipe.yml
+  tags:
+    - web_app_wipe
+
+- name: Login
+  community.docker.docker_login:
+    username: "{{ dockerhub_username }}"
+    password: "{{ dockerhub_password }}"
+  no_log: true  # Prevents credentials in logs
+
+- name: Deploy application with Docker Compose
+  tags:
+    - app_deploy
+    - compose
+
+  block:
+    - name: Create app directory
+      ansible.builtin.file:
+        path: "{{ web_app_dir }}"
+        state: directory
+        mode: '755'
+
+    - name: Template docker-compose file
+      ansible.builtin.template:
+        src: ../templates/docker-compose.yml.j2
+        dest: "{{ web_app_dir }}/docker-compose.yml"
+        mode: '744'
+
+    - name: Deploy with docker-compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ web_app_dir }}"
+        pull: always
+        state: present
+
+  rescue:
+    - name: Handle deployment failure
+      ansible.builtin.debug:
+        msg: "Failed to start docker compose"
+
+
+- name: Verify Container Running
+  ansible.builtin.wait_for:
+    host: "{{ web_app_addr }}"
+    port: "{{ web_app_port }}"
+    connect_timeout: 1
+    delay: 5
+    state: drained
+    sleep: 2
+
+- name: Check Health
+  ansible.builtin.uri:
+    url: "http://{{ web_app_addr }}:{{ web_app_port }}/health"
+    method: GET

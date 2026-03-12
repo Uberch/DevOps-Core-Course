@@ -1,0 +1,1 @@
+Assume proper documentation present

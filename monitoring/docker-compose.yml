@@ -1,0 +1,78 @@
+services:
+  loki:
+    image: grafana/loki:3.0.0
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/config.yml:/etc/loki/config.yml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/config.yml
+
+  promtail:
+    image: grafana/promtail:3.0.0
+    volumes:
+      - ./promtail/config.yml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+
+  grafana:
+    image: grafana/grafana:12.3.1
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+
+  infoservice-python:
+    image: ub3rch/infoservice:python-latest
+    ports:
+      - "8000:8000"
+    networks:
+      - logging
+    labels:
+      logging: "promtail"
+      app: "devops-python"
+
+  infoservice-go:
+    image: ub3rch/infoservice:go-latest
+    ports:
+      - "8001:8000"
+    networks:
+      - logging
+    labels:
+      logging: "promtail"
+      app: "devops-go"
+
+volumes:
+  grafana-data:
+  loki-data:
+
+deploy:
+  resources:
+    limits:
+      memory: 1G
+      cpus: '1.0'
+    reservations:
+      memory: 512M
+
+healthcheck:
+  test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+
+healthcheck:
+  test: ["CMD", "curl", "--silent", "http://localhost:3000/api/health"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+
+healthcheck:
+  test: ["CMD", "curl", "--silent", "http://localhost:9080/targets"]
+  interval: 10s
+  timeout: 5s
+  retries: 5

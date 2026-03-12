@@ -8,24 +8,35 @@ import os
 import socket
 import platform
 import logging
+import json
 from pydantic import BaseModel
 from datetime import datetime, timezone
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 
 
-# Configuration
+# Setting up logging
+class JSONFormatter(logging.Formatter):
+    def format(self, record):
+        log_obj = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "logger": record.name,
+        }
+        if record.exc_info:
+            log_obj["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_obj)
+
+handler = logging.StreamHandler()
+handler.setFormatter(JSONFormatter())
+logger = logging.getLogger()
+logger.addHandler(handler)
+
+
 if os.getenv('DEBUG', 'false') == 'true':
-    level = logging.DEBUG
+    logger.setLevel(logging.DEBUG)
 else:
-    level = logging.INFO
-DEBUG = level
-
-logging.basicConfig(
-    level=DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-logger.info("Application starting...")
+    logger.setLevel(logging.INFO)
 
 
 # Setting up pydantic structures
@@ -129,6 +140,7 @@ def get_endpoints():
 
 
 # Application start time
+logger.info("Application starting...")
 START_TIME = datetime.now(timezone.utc)
 start_time = datetime.now()
 
@@ -140,13 +152,26 @@ app = FastAPI(
 )
 
 
+# Logging
+@app.middleware("http")
+async def logging_middleware(request: Request, call_next):
+    logger.info(f'Request: {request.method} {request.url.path}')
+    response = await call_next(request)
+
+    response_body = b""
+    async for chunk in response.body_iterator:
+        response_body += chunk
+
+    logger.info(f'Response code: {response.status_code}.')
+    return Response(content=response_body, status_code=response.status_code, 
+        headers=dict(response.headers), media_type=response.media_type)
+
+
 # FastAPI
 @app.get("/")
 def index(request: Request):
     """Main endpoint - service and system information."""
     logger.info("Collecting general information...")
-    logger.debug(f'Request: {request.method} {request.url.path}')
-    logger.debug(f'Headers: {request.headers}')
     return MainEndpoint(
         system=get_system_info(),
         service=get_service_info(),
@@ -165,7 +190,6 @@ def index(request: Request):
 def health(request: Request):
     """Health endpoint - information about services status"""
     logger.info("Collecting service health information...")
-    logger.debug(f'Request: {request.method} {request.url.path}')
     uptime_info = get_uptime()
     return HealthEndpoint(
         status="healthy",

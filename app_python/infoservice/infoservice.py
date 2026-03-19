@@ -9,9 +9,12 @@ import socket
 import platform
 import logging
 import json
+import time
 from pydantic import BaseModel
 from datetime import datetime, timezone
 from fastapi import FastAPI, Request, Response
+from fastapi.responses import PlainTextResponse
+from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry, generate_latest, CONTENT_TYPE_LATEST
 
 
 # Setting up logging
@@ -150,30 +153,82 @@ app = FastAPI(
     summary="",
     version="0.1.1",
 )
+registry = CollectorRegistry()
 
 
-# Logging
+# Prometheus metrics
+http_requests_total = Counter(
+    'http_requests_total',
+    'Total HTTP requests',
+    ['method', 'endpoint', 'status'],
+    registry=registry,
+)
+
+http_request_duration_seconds = Histogram(
+    'http_request_duration_seconds',
+    'HTTP request duration',
+    ['method', 'endpoint'],
+    registry=registry,
+)
+
+http_requests_in_progress = Gauge(
+    'http_requests_in_progress',
+    'HTTP requests currently being processed',
+    registry=registry,
+)
+
+endpoint_calls = Counter(
+    'devops_info_endpoint_calls',
+    'Endpoint calls',
+    ['endpoint'],
+    registry=registry,
+)
+
+system_info_duration = Histogram(
+    'devops_info_system_collection_seconds',
+    'System info collection time',
+    registry=registry,
+)
+
 @app.middleware("http")
-async def logging_middleware(request: Request, call_next):
+async def middleware(request: Request, call_next):
     logger.info(f'Request: {request.method} {request.url.path}')
+    start_time = time.time()
+
     response = await call_next(request)
 
-    response_body = b""
-    async for chunk in response.body_iterator:
-        response_body += chunk
+    path = request.url.path
+
+    duration = time.time() - start_time
+    http_requests_total.labels(
+        method=request.method,
+        endpoint=path,
+        status=str(response.status_code),
+    ).inc()
+
+    http_request_duration_seconds.labels(
+        method=request.method,
+        endpoint=path,
+    ).observe(duration)
 
     logger.info(f'Response code: {response.status_code}.')
-    return Response(content=response_body, status_code=response.status_code, 
-        headers=dict(response.headers), media_type=response.media_type)
+    return response
 
 
 # FastAPI
 @app.get("/")
+@http_requests_in_progress.track_inprogress()
 def index(request: Request):
     """Main endpoint - service and system information."""
     logger.info("Collecting general information...")
+
+    start_time = time.time()
+    sys_info = get_system_info()
+    duration = time.time() - start_time
+    system_info_duration.observe(duration)
+
     return MainEndpoint(
-        system=get_system_info(),
+        system=sys_info,
         service=get_service_info(),
         runtime=get_uptime(),
         request=RequestInfo(
@@ -187,7 +242,8 @@ def index(request: Request):
 
 
 @app.get("/health")
-def health(request: Request):
+@http_requests_in_progress.track_inprogress()
+def health():
     """Health endpoint - information about services status"""
     logger.info("Collecting service health information...")
     uptime_info = get_uptime()
@@ -195,4 +251,13 @@ def health(request: Request):
         status="healthy",
         timestamp=uptime_info.current_time,
         uptime_seconds=uptime_info.uptime_seconds,
+    )
+
+
+@app.get("/metrics")
+@http_requests_in_progress.track_inprogress()
+def metrics():
+    return PlainTextResponse(
+        generate_latest(registry),
+        media_type=CONTENT_TYPE_LATEST
     )

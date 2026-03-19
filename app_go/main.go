@@ -196,8 +196,10 @@ func main() {
 	// 		log.Println("Failed to read stdin", err)
 	// 	}
 	// }
-	if DebugLevel > 0 {
-		fmt.Print(&DebugBuffer)
+	for {
+		if DebugLevel > 0 {
+			fmt.Print(&DebugBuffer)
+		}
 	}
 	log.Println("Terminating server")
 }

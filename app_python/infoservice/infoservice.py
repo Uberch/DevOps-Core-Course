@@ -8,24 +8,38 @@ import os
 import socket
 import platform
 import logging
+import json
+import time
 from pydantic import BaseModel
 from datetime import datetime, timezone
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import PlainTextResponse
+from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry, generate_latest, CONTENT_TYPE_LATEST
 
 
-# Configuration
+# Setting up logging
+class JSONFormatter(logging.Formatter):
+    def format(self, record):
+        log_obj = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "logger": record.name,
+        }
+        if record.exc_info:
+            log_obj["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_obj)
+
+handler = logging.StreamHandler()
+handler.setFormatter(JSONFormatter())
+logger = logging.getLogger()
+logger.addHandler(handler)
+
+
 if os.getenv('DEBUG', 'false') == 'true':
-    level = logging.DEBUG
+    logger.setLevel(logging.DEBUG)
 else:
-    level = logging.INFO
-DEBUG = level
-
-logging.basicConfig(
-    level=DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-logger.info("Application starting...")
+    logger.setLevel(logging.INFO)
 
 
 # Setting up pydantic structures
@@ -129,6 +143,7 @@ def get_endpoints():
 
 
 # Application start time
+logger.info("Application starting...")
 START_TIME = datetime.now(timezone.utc)
 start_time = datetime.now()
 
@@ -138,17 +153,82 @@ app = FastAPI(
     summary="",
     version="0.1.1",
 )
+registry = CollectorRegistry()
+
+
+# Prometheus metrics
+http_requests_total = Counter(
+    'http_requests_total',
+    'Total HTTP requests',
+    ['method', 'endpoint', 'status'],
+    registry=registry,
+)
+
+http_request_duration_seconds = Histogram(
+    'http_request_duration_seconds',
+    'HTTP request duration',
+    ['method', 'endpoint'],
+    registry=registry,
+)
+
+http_requests_in_progress = Gauge(
+    'http_requests_in_progress',
+    'HTTP requests currently being processed',
+    registry=registry,
+)
+
+endpoint_calls = Counter(
+    'devops_info_endpoint_calls',
+    'Endpoint calls',
+    ['endpoint'],
+    registry=registry,
+)
+
+system_info_duration = Histogram(
+    'devops_info_system_collection_seconds',
+    'System info collection time',
+    registry=registry,
+)
+
+@app.middleware("http")
+async def middleware(request: Request, call_next):
+    logger.info(f'Request: {request.method} {request.url.path}')
+    start_time = time.time()
+
+    response = await call_next(request)
+
+    path = request.url.path
+
+    duration = time.time() - start_time
+    http_requests_total.labels(
+        method=request.method,
+        endpoint=path,
+        status=str(response.status_code),
+    ).inc()
+
+    http_request_duration_seconds.labels(
+        method=request.method,
+        endpoint=path,
+    ).observe(duration)
+
+    logger.info(f'Response code: {response.status_code}.')
+    return response
 
 
 # FastAPI
 @app.get("/")
+@http_requests_in_progress.track_inprogress()
 def index(request: Request):
     """Main endpoint - service and system information."""
     logger.info("Collecting general information...")
-    logger.debug(f'Request: {request.method} {request.url.path}')
-    logger.debug(f'Headers: {request.headers}')
+
+    start_time = time.time()
+    sys_info = get_system_info()
+    duration = time.time() - start_time
+    system_info_duration.observe(duration)
+
     return MainEndpoint(
-        system=get_system_info(),
+        system=sys_info,
         service=get_service_info(),
         runtime=get_uptime(),
         request=RequestInfo(
@@ -162,13 +242,22 @@ def index(request: Request):
 
 
 @app.get("/health")
-def health(request: Request):
+@http_requests_in_progress.track_inprogress()
+def health():
     """Health endpoint - information about services status"""
     logger.info("Collecting service health information...")
-    logger.debug(f'Request: {request.method} {request.url.path}')
     uptime_info = get_uptime()
     return HealthEndpoint(
         status="healthy",
         timestamp=uptime_info.current_time,
         uptime_seconds=uptime_info.uptime_seconds,
+    )
+
+
+@app.get("/metrics")
+@http_requests_in_progress.track_inprogress()
+def metrics():
+    return PlainTextResponse(
+        generate_latest(registry),
+        media_type=CONTENT_TYPE_LATEST
     )

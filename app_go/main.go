@@ -184,18 +184,18 @@ func main() {
 		log.Println(err)
 	}()
 
-	var stop string
-	fmt.Println("Type in the 'stop' to terminate")
-	_, err := fmt.Scan(&stop)
-	if err != nil {
-		log.Println("Failed to read stdin", err)
-	}
-	for stop != "stop" {
-		_, err := fmt.Scan(&stop)
-		if err != nil {
-			log.Println("Failed to read stdin", err)
-		}
-	}
+	// var stop string
+	// fmt.Println("Type in the 'stop' to terminate")
+	// _, err := fmt.Scan(&stop)
+	// if err != nil {
+	// 	log.Println("Failed to read stdin", err)
+	// }
+	// for stop != "stop" {
+	// 	_, err := fmt.Scan(&stop)
+	// 	if err != nil {
+	// 		log.Println("Failed to read stdin", err)
+	// 	}
+	// }
 	if DebugLevel > 0 {
 		fmt.Print(&DebugBuffer)
 	}

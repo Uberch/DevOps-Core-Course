@@ -255,7 +255,6 @@ def health():
 
 
 @app.get("/metrics")
-@http_requests_in_progress.track_inprogress()
 def metrics():
     return PlainTextResponse(
         generate_latest(registry),

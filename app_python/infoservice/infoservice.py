@@ -12,9 +12,10 @@ import json
 import time
 from pydantic import BaseModel
 from datetime import datetime, timezone
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
-from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry
+from prometheus_clien import generate_latest, CONTENT_TYPE_LATEST
 
 
 # Setting up logging
@@ -29,6 +30,7 @@ class JSONFormatter(logging.Formatter):
         if record.exc_info:
             log_obj["exception"] = self.formatException(record.exc_info)
         return json.dumps(log_obj)
+
 
 handler = logging.StreamHandler()
 handler.setFormatter(JSONFormatter())
@@ -189,6 +191,7 @@ system_info_duration = Histogram(
     'System info collection time',
     registry=registry,
 )
+
 
 @app.middleware("http")
 async def middleware(request: Request, call_next):

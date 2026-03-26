@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
 from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry
-from prometheus_clien import generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 
 # Setting up logging

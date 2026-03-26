@@ -201,5 +201,5 @@ func main() {
 			fmt.Print(&DebugBuffer)
 		}
 	}
-	log.Println("Terminating server")
+	// log.Println("Terminating server")
 }

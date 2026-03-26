@@ -7,6 +7,18 @@ services:
       - ./loki/config.yml:/etc/loki/config.yml
       - loki-data:/loki
     command: -config.file=/etc/loki/config.yml
+    healthcheck:
+      test: ["CMD", "curl", "--silent", "http://loki:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
 
   promtail:
     image: grafana/promtail:3.0.0
@@ -15,6 +27,13 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/config.yml
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
 
   grafana:
     image: grafana/grafana:12.3.1
@@ -26,6 +45,38 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ALLOW_EMBEDDING=true
+    networks:
+      - logging
+    healthcheck:
+      test: ["CMD", "curl", "--silent", "http://grafana:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+
+  prometheus:
+    image: prom/prometheus:v3.8.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/config.yml:/etc/prometheus/config.yml
+      - prometheus-data:/data
+    networks:
+      - logging
+    command: --config.file=/etc/prometheus/config.yml
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
 
   infoservice-python:
     image: ub3rch/infoservice:python-latest
@@ -36,6 +87,18 @@ services:
     labels:
       logging: "promtail"
       app: "devops-python"
+    healthcheck:
+      test: ["CMD", "curl", "--silent", "http://infoservice-python:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
 
   infoservice-go:
     image: ub3rch/infoservice:go-latest
@@ -46,33 +109,24 @@ services:
     labels:
       logging: "promtail"
       app: "devops-go"
+    healthcheck:
+      test: ["CMD", "curl", "--silent", "http://infoservice-go:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+
+networks:
+  logging:
+    driver: bridge
 
 volumes:
+  prometheus-data:
   grafana-data:
   loki-data:
-
-deploy:
-  resources:
-    limits:
-      memory: 1G
-      cpus: '1.0'
-    reservations:
-      memory: 512M
-
-healthcheck:
-  test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3100/ready"]
-  interval: 10s
-  timeout: 5s
-  retries: 5
-
-healthcheck:
-  test: ["CMD", "curl", "--silent", "http://localhost:3000/api/health"]
-  interval: 10s
-  timeout: 5s
-  retries: 5
-
-healthcheck:
-  test: ["CMD", "curl", "--silent", "http://localhost:9080/targets"]
-  interval: 10s
-  timeout: 5s
-  retries: 5

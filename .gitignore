@@ -16,3 +16,4 @@ Pulumi.*.yaml
 
 # OS
 .DS_Store
+shell.nix

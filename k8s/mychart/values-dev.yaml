@@ -1,3 +1,7 @@
+credentials:
+  username: default
+  password: default
+
 replicaCount: 1
 
 image:
@@ -20,3 +24,10 @@ livenessProbe:
     port: 8000
   initialDelaySeconds: 5
   periodSeconds: 10
+
+env:
+  - name: Credentials
+    valueFrom:
+      secretKeyRef:
+        name: secret-name
+        key: password

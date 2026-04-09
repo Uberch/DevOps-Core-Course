@@ -30,3 +30,8 @@ spec:
         resources: {{ .Values.recources }}
         livenessProbe: {{ .Values.livenessProbe }}
         readinessProbe: {{ .Values.readinessProbe }}
+
+annotations:
+  vault.hashicorp.com/agent-inject: "true"
+  vault.hashicorp.com/role: "admin"
+  vault.hashicorp.com/agent-inject-secret-config: "secret/data/myapp/config"

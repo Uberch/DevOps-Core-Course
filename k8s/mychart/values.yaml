@@ -164,3 +164,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+persistence:
+  enabled: true
+  size: 100Mi
+  storageClass: ""  # Use default

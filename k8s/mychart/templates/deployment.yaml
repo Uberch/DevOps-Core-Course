@@ -31,6 +31,26 @@ spec:
         livenessProbe: {{ .Values.livenessProbe }}
         readinessProbe: {{ .Values.readinessProbe }}
 
+  volumes:
+    - name: config-volume
+      configMap:
+        name: config-name
+    - name: data-volume
+      persistentVolumeClaim:
+        claimName: {{ include "mychart.fullname" . }}-data
+
+  containers:
+    - volumeMounts:
+      - name: config-volume
+        mountPath: /config
+    - volumeMounts:
+      - name: data-volume
+        mountPath: /data
+
+  envFrom:
+    - configMapRef:
+      name: {{ include "mychart.fullname" . }}-env
+
 annotations:
   vault.hashicorp.com/agent-inject: "true"
   vault.hashicorp.com/role: "admin"

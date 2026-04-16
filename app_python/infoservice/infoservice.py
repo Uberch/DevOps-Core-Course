@@ -5,6 +5,7 @@ Main application module
 
 # Imports
 import os
+from pydoc import tempfile_pager
 import socket
 import platform
 import logging
@@ -94,6 +95,10 @@ class HealthEndpoint(BaseModel):
     uptime_seconds: int
 
 
+class VisitsEndpoint(BaseModel):
+    count: int
+
+
 # Various information collecting functions
 def get_system_info():
     """Collect system information."""
@@ -142,6 +147,25 @@ def get_endpoints():
             description="Health check",
         ),
     ]
+
+
+def increase_visit_count():
+    count_file = "/data/visits"
+    temp_file = "/data/visits.temp"
+    while os.path.isfile(temp_file):
+        pass
+    with open(temp_file, "w") as t_file:
+        count = read_visit_count()
+        _ = t_file.write(str(count+1))
+        os.replace(temp_file, count_file)
+
+
+def read_visit_count():
+    count_file = "/data/visits"
+    if os.path.isfile(count_file):
+        with open(count_file, "r") as file:
+            return int(file.read())
+    else: return 0
 
 
 # Application start time
@@ -222,6 +246,7 @@ async def middleware(request: Request, call_next):
 @app.get("/")
 @http_requests_in_progress.track_inprogress()
 def index(request: Request):
+    increase_visit_count()
     """Main endpoint - service and system information."""
     logger.info("Collecting general information...")
 
@@ -263,3 +288,7 @@ def metrics():
         generate_latest(registry),
         media_type=CONTENT_TYPE_LATEST
     )
+
+@app.get("/visits")
+def visits():
+    return VisitsEndpoint(count=read_visit_count())

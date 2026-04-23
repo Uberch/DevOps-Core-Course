@@ -82,6 +82,8 @@ services:
     image: ub3rch/infoservice:python-latest
     ports:
       - "8000:8000"
+    volumes:
+      - python-app-data:/data
     networks:
       - logging
     labels:
@@ -130,3 +132,4 @@ volumes:
   prometheus-data:
   grafana-data:
   loki-data:
+  python-app-data:

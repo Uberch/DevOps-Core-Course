@@ -1,0 +1,14 @@
+{
+  "name": "infoservice",
+  "compatibility_date": "2025-11-25",
+  "vars": {
+    "APP_NAME": "infoservice",
+    "COURSE_NAME": "devops-core"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SETTINGS",
+      "id": "377f2078ffd249dbb997e66349f23e0f"
+    }
+  ]
+}

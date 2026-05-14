@@ -1,0 +1,7 @@
+fastapi[standard]==0.115.0
+uvicorn[standard]==0.32.0  # Includes performance extras
+prometheus-client==0.23.1
+pytest
+pytest-cov
+pytest-mock
+httpx
